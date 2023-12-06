@@ -7,8 +7,8 @@ import {
   StudentModel,
   TUserName,
 } from './student.interface';
-import bcrypt from 'bcrypt';
-import config from '../../config';
+// import bcrypt from 'bcrypt';
+// import config from '../../config';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -85,7 +85,17 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 
 const studentSchema = new Schema<TStudentInterface, StudentModel>(
   {
-    id: { type: String, unique: true },
+    id: {
+      type: String,
+      unique: true,
+      required: [true, 'ID is required'],
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      unique: true,
+      required: [true, 'user ID is required'],
+      ref: 'User',
+    },
     name: {
       type: userNameSchema,
       required: [true, 'Name is required'],
@@ -111,10 +121,6 @@ const studentSchema = new Schema<TStudentInterface, StudentModel>(
         validator: (value: string) => validator.isEmail(value),
         message: '{VALUE} is not valid mail address',
       },
-    },
-    password: {
-      type: String,
-      required: [true, 'password is required'],
     },
     contactNo: {
       type: String,
@@ -152,10 +158,9 @@ const studentSchema = new Schema<TStudentInterface, StudentModel>(
     profileImg: {
       type: String,
     },
-    isActive: {
-      type: String,
-      enum: ['active', 'blocked'],
-      default: 'active',
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester',
     },
     isDeleted: {
       type: Boolean,
@@ -173,24 +178,6 @@ const studentSchema = new Schema<TStudentInterface, StudentModel>(
 
 studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
-});
-
-studentSchema.pre('save', async function (next) {
-  // console.log(this, 'pre hook: we will save data');
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const userData = this;
-
-  // bcrypt.hash(user.password, Number(config.bcrypt_salt_rounds))
-  userData.password = await bcrypt.hash(
-    userData.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-  next();
-});
-
-studentSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
 });
 
 // query middleware

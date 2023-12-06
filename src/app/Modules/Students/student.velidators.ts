@@ -42,29 +42,36 @@ const localGuardianValidationSchema = z.object({
   address: z.string().min(1, { message: 'localGuardian address is required' }),
 });
 
-const studentValidationSchema = z.object({
-  id: z.string(),
-  name: userNameValidationSchema,
-  gender: z.enum(['male', 'female', 'other']),
-  dateOfBirth: z.string().optional(),
-  email: z.string().email(),
-  password: z.string(),
-  contactNo: z.string().min(1, { message: 'Contact number is required' }),
-  emergencyContactNo: z
-    .string()
-    .min(1, { message: 'Emergency contact number is required' }),
-  bloodGroup: z
-    .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
-    .optional(),
-  presentAddress: z.string().min(1, { message: 'Present address is required' }),
-  permanentAddress: z
-    .string()
-    .min(1, { message: 'Permanent address is required' }),
-  guardian: guardianValidationSchema,
-  localGuardian: localGuardianValidationSchema,
-  profileImg: z.string().optional(),
-  isActive: z.enum(['active', 'blocked']).default('active'),
-  isDeleted: z.boolean().default(false),
+const createStudentValidationSchema = z.object({
+  body: z.object({
+    password: z.string().max(20),
+    student: z.object({
+      name: userNameValidationSchema,
+      gender: z.enum(['male', 'female', 'other']),
+      dateOfBirth: z.string().optional(),
+      email: z.string().email(),
+      // password: z.string(),
+      contactNo: z.string().min(1, { message: 'Contact number is required' }),
+      emergencyContactNo: z
+        .string()
+        .min(1, { message: 'Emergency contact number is required' }),
+      bloodGroup: z
+        .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+        .optional(),
+      presentAddress: z
+        .string()
+        .min(1, { message: 'Present address is required' }),
+      permanentAddress: z
+        .string()
+        .min(1, { message: 'Permanent address is required' }),
+      guardian: guardianValidationSchema,
+      localGuardian: localGuardianValidationSchema,
+      admissionSemester: z.string(),
+      profileImg: z.string().optional(),
+    }),
+  }),
 });
 
-export default studentValidationSchema;
+export const StudentValidators = {
+  studentValidationSchema: createStudentValidationSchema,
+};
